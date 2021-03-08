@@ -34,8 +34,9 @@ jobs:
           DIST_OUTPUT_BUCKET=mie-dev-iandow
           TEMPLATE_OUTPUT_BUCKET=mie-dev-iandow-us-west-2
           ./build-s3-dist.sh --no-layer --template-bucket $TEMPLATE_OUTPUT_BUCKET --code-bucket $DIST_OUTPUT_BUCKET --version $VERSION --region $REGION
-          aws cloudformation deploy --stack-name $MIE_STACK_NAME --template-file global-s3-assets/media-insights-stack.template --s3-bucket $DIST_OUTPUT_BUCKET-$REGION --s3-prefix media_insights_engine/$VERSION --parameter-overrides DeployTestResources=true MaxConcurrentWorkflows=10 DeployAnalyticsPipeline=true EnableXrayTrace=true ParameterKey=SendAnonymousData,ParameterValue=false --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --force-upload --disable-rollback
-
+          read -r TEMPLATE < templateUrl.txt
+          aws cloudformation create-stack --stack-name $MIE_STACK_NAME --template-url $TEMPLATE --region $REGION --parameters ParameterKey=DeployTestResources,ParameterValue=true ParameterKey=MaxConcurrentWorkflows,ParameterValue=10 ParameterKey=DeployAnalyticsPipeline,ParameterValue=true ParameterKey=EnableXrayTrace,ParameterValue=true ParameterKey=SendAnonymousData,ParameterValue=false --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --disable-rollback
+          
       - name: Build Failed
         if: ${{ failure() }}
         uses: nashmaniac/create-issue-action@v1.1
