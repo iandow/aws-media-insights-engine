@@ -102,6 +102,10 @@ jobs:
         with:
           title: Nightly test for $SHORT_SHA Failed
           token: ${{secrets.GITHUB_TOKEN}}
-          assignees: brandold, ianwow, aburkleaux-amazon
+          assignees: ianwow
           labels: bug
           body: Nightly test failed for commit ${{github.sha}}
+      
+      - name: Delete stack
+        run: |
+          aws cloudformation delete-stack --stack-name $MIE_STACK_NAME
