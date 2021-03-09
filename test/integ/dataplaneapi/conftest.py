@@ -8,7 +8,6 @@ import requests
 import logging
 import re
 import os
-import time
 
 from requests_aws4auth import AWS4Auth
 
@@ -45,20 +44,12 @@ def testing_env_variables():
 
 @pytest.fixture(scope='session')
 def stack_resources(testing_env_variables):
-    client = boto3.client('cloudformation', region_name=testing_env_variables['REGION'])
-    # verify that the stack has deployed
-    print('Verifying that the stack has fully deployed')
-    status = client.describe_stacks(StackName='mie-dev')['Stacks'][0]['StackStatus']
-    while status == "CREATE_IN_PROGRESS":
-      time.sleep(5)
-      status = client.describe_stacks(StackName='mie-dev')['Stacks'][0]['StackStatus']
-    print("Stack deploy status: " + status)
-
     print('Validating Stack Resources')
     resources = {}
     # is the dataplane api and bucket present?
+
+    client = boto3.client('cloudformation', region_name=testing_env_variables['REGION'])
     response = client.describe_stacks(StackName=testing_env_variables['MIE_STACK_NAME'])
-    print(response['Stacks'])
     outputs = response['Stacks'][0]['Outputs']
 
     for output in outputs:
