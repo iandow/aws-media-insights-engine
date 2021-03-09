@@ -44,13 +44,17 @@ def testing_env_variables():
 
 @pytest.fixture(scope='session')
 def stack_resources(testing_env_variables):
+    # verify that the stack has deployed
+    print('Verifying that the stack has fully deployed')
+    status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query "Stacks[0].StackStatus")
+    while [ "$status" == "CREATE_IN_PROGRESS" ]; do sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query 'Stacks[0].StackStatus'); done
+    echo "$MIE_STACK_NAME stack status: $status"
+
     print('Validating Stack Resources')
     resources = {}
     # is the dataplane api and bucket present?
-
     client = boto3.client('cloudformation', region_name=testing_env_variables['REGION'])
     response = client.describe_stacks(StackName=testing_env_variables['MIE_STACK_NAME'])
-    print(response)
     print(response['Stacks'])
     outputs = response['Stacks'][0]['Outputs']
 

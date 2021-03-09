@@ -41,10 +41,6 @@ then
 fi
 
 #################### Nothing for users to change below here ####################
-status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query "Stacks[0].StackStatus")
-while [ "$status" == "CREATE_IN_PROGRESS" ]; do sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query 'Stacks[0].StackStatus'); done
-echo "$MIE_STACK_NAME stack status: $status"
-
 # Create and activate a temporary Python environment for this script.
 echo "------------------------------------------------------------------------------"
 echo "Creating a temporary Python virtualenv for this script"
