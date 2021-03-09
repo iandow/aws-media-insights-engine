@@ -8,6 +8,7 @@ import requests
 import logging
 import re
 import os
+import time
 
 from requests_aws4auth import AWS4Auth
 
@@ -46,9 +47,11 @@ def testing_env_variables():
 def stack_resources(testing_env_variables):
     # verify that the stack has deployed
     print('Verifying that the stack has fully deployed')
-    status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query "Stacks[0].StackStatus")
-    while [ "$status" == "CREATE_IN_PROGRESS" ]; do sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $REGION --output json --query 'Stacks[0].StackStatus'); done
-    echo "$MIE_STACK_NAME stack status: $status"
+    status = client.describe_stacks(StackName='mie-dev')['Stacks'][0]['StackStatus']
+    while status == "CREATE_IN_PROGRESS":
+      time.sleep(5)
+      status = client.describe_stacks(StackName='mie-dev')['Stacks'][0]['StackStatus']
+    print("Stack deploy status: " + status)
 
     print('Validating Stack Resources')
     resources = {}
