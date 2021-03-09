@@ -50,6 +50,8 @@ def stack_resources(testing_env_variables):
 
     client = boto3.client('cloudformation', region_name=testing_env_variables['REGION'])
     response = client.describe_stacks(StackName=testing_env_variables['MIE_STACK_NAME'])
+    print(response)
+    print(response['Stacks'])
     outputs = response['Stacks'][0]['Outputs']
 
     for output in outputs:
