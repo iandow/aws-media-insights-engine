@@ -31,5 +31,4 @@ jobs:
         echo "Hello ${{ github.event.inputs.name }}"
         stack_status=${{ github.event.inputs.name }}"
         if [ $stack_status == "World" ]; then echo "ian01"; fi
-      if [ $stack_status != "World" ]; then echo "ian02"; fi
-      
+        if [ $stack_status != "World" ]; then echo "ian02"; fi
