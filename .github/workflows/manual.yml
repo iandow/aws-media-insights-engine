@@ -45,9 +45,9 @@ jobs:
         shell: bash
         run: |
           # Wait for stack to finish deploying
-          status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus" | tr -d '"')
+          status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"')
           echo 1-$status
-          while [ "$status" == "UPDATE_IN_PROGRESS" ]; do echo 2-$status; sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          while [ "$status" == "UPDATE_IN_PROGRESS" ]; do echo 2-$status; sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"'); done
           if [ "$status" == "UPDATE_IN_PROGRESS" ]; then echo "true"; fi
           echo 3-$status
           echo "$MIE_STACK_NAME stack status: $stack_status"
