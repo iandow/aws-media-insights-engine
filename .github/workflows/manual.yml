@@ -44,5 +44,7 @@ jobs:
         run: |
           # Wait for stack to finish deploying
           stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
-          while [ $stack_status == "CREATE_IN_PROGRESS" ]; do sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          echo 1-$stack_status
+          while [ $stack_status == "CREATE_IN_PROGRESS" ]; do echo 2-$stack_status; sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          echo 3-$stack_status
           echo "$MIE_STACK_NAME stack status: $stack_status"
