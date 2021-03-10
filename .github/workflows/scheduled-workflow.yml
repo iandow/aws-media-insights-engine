@@ -3,7 +3,6 @@ name: scheduled-workflow
 on:
   schedule:
     - cron: '0 4 * * *'
-  workflow_dispatch:
 
 jobs:
   build-us-west-2:
@@ -31,11 +30,10 @@ jobs:
           MIE_STACK_NAME=mie-dev
           REGION=us-west-2
           VERSION=$SHORT_SHA
-          DIST_OUTPUT_BUCKET=mie-dev-iandow
-          TEMPLATE_OUTPUT_BUCKET=mie-dev-iandow-us-west-2
+          DIST_OUTPUT_BUCKET=mie-dev
+          TEMPLATE_OUTPUT_BUCKET=mie-dev-us-west-2
           ./build-s3-dist.sh --no-layer --template-bucket $TEMPLATE_OUTPUT_BUCKET --code-bucket $DIST_OUTPUT_BUCKET --version $VERSION --region $REGION
-          read -r TEMPLATE < templateUrl.txt
-          aws cloudformation create-stack --stack-name $MIE_STACK_NAME --template-url $TEMPLATE --region $REGION --parameters ParameterKey=DeployTestResources,ParameterValue=true ParameterKey=MaxConcurrentWorkflows,ParameterValue=10 ParameterKey=DeployAnalyticsPipeline,ParameterValue=true ParameterKey=EnableXrayTrace,ParameterValue=true ParameterKey=SendAnonymousData,ParameterValue=false --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --disable-rollback
+          aws cloudformation deploy --stack-name $MIE_STACK_NAME --template-file global-s3-assets/media-insights-stack.template --s3-bucket $DIST_OUTPUT_BUCKET-$REGION --s3-prefix media_insights_engine/$VERSION --parameter-overrides DeployTestResources=true MaxConcurrentWorkflows=10 DeployAnalyticsPipeline=true EnableXrayTrace=true ParameterKey=SendAnonymousData,ParameterValue=false --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND --force-upload
 
       - name: Build Failed
         if: ${{ failure() }}
@@ -87,8 +85,8 @@ jobs:
       - name: Run integ tests
         run: |
           # Wait for stack to finish deploying
-          stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
-          while [ $stack_status == "CREATE_IN_PROGRESS" ]; do sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"')
+          while [ "$status" == "CREATE_IN_PROGRESS" ]; do sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"'); done
           echo "$MIE_STACK_NAME stack status: $stack_status"
           cd $GITHUB_WORKSPACE
           cd test/integ
@@ -109,7 +107,3 @@ jobs:
           assignees: ianwow
           labels: bug
           body: Nightly test failed for commit ${{github.sha}}
-      
-      - name: Delete stack
-        run: |
-          aws cloudformation delete-stack --stack-name $MIE_STACK_NAME
