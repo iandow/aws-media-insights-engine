@@ -28,7 +28,7 @@ jobs:
       - name: Run build script
         run: |
           cd deployment
-          MIE_STACK_NAME=mie-dev
+          MIE_STACK_NAME=mie-dev2
           REGION=us-west-2
           VERSION=$SHORT_SHA
           DIST_OUTPUT_BUCKET=mie-dev-iandow
@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MIE_REGION: 'us-west-2'
-      MIE_STACK_NAME: mie-dev
+      MIE_STACK_NAME: mie-dev2
     steps:
       - name: Check out development branch
         uses: actions/checkout@v2.3.4
