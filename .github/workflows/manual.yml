@@ -46,5 +46,6 @@ jobs:
           stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
           echo 1-$stack_status
           while [ $stack_status == "UPDATE_IN_PROGRESS" ]; do echo 2-$stack_status; sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          if [ $stack_status == "UPDATE_IN_PROGRESS" ]; then echo "true"; fi
           echo 3-$stack_status
           echo "$MIE_STACK_NAME stack status: $stack_status"
