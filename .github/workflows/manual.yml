@@ -40,14 +40,14 @@ jobs:
             aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
             aws-region: us-west-2
       
+
       - name: Run integ tests
         shell: bash
         run: |
           # Wait for stack to finish deploying
-          env
           stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
           echo 1-$stack_status
-          while [ $stack_status == "UPDATE_IN_PROGRESS" ]; do echo 2-$stack_status; sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
-          if [ $stack_status == "UPDATE_IN_PROGRESS" ]; then echo "true";
+          while [ "$stack_status" == "UPDATE_IN_PROGRESS" ]; do echo 2-$stack_status; sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          if [ "$stack_status" == "UPDATE_IN_PROGRESS" ]; then echo "true"; fi
           echo 3-$stack_status
           echo "$MIE_STACK_NAME stack status: $stack_status"
