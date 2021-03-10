@@ -87,10 +87,9 @@ jobs:
       - name: Run integ tests
         run: |
           # Wait for stack to finish deploying
-          status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
-          echo "$MIE_STACK_NAME stack status1: $status"
-          while [ "$status" == "CREATE_IN_PROGRESS" ]; do echo "$MIE_STACK_NAME stack status2: $status"; sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
-          echo "$MIE_STACK_NAME stack status3: $status"
+          stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query "Stacks[0].StackStatus")
+          while [ $stack_status == "CREATE_IN_PROGRESS" ]; do sleep 5; stack_status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus'); done
+          echo "$MIE_STACK_NAME stack status: $stack_status"
           cd $GITHUB_WORKSPACE
           cd test/integ
           ./run_integ.sh
