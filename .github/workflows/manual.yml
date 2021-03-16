@@ -10,11 +10,7 @@ on:
     inputs:
       name:
         # Friendly description to be shown in the UI instead of 'name'
-        description: 'Person to greet'
-        # Default value if no value is explicitly provided
-        default: 'World'
-        # Input has to be provided for the workflow to run
-        required: true
+        description: 'iantest'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -28,26 +24,9 @@ jobs:
       MIE_REGION: 'us-west-2'
       MIE_STACK_NAME: mie-dev
     steps:
-      - name: Check out development branch
-        uses: actions/checkout@v2.3.4
-        with:
-          ref: development
-
-      - name: Initialize AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-            aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
-            aws-region: us-west-2
-      
-
-      - name: Run integ tests
+      - name: Run curl
         shell: bash
         run: |
           # Wait for stack to finish deploying
-          status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"')
-          echo 1-$status
-          while [ "$status" == "UPDATE_IN_PROGRESS" ]; do echo 2-$status; sleep 5; status=$(aws cloudformation describe-stacks --stack-name $MIE_STACK_NAME --region $MIE_REGION --output json --query 'Stacks[0].StackStatus' | tr -d '"'); done
-          if [ "$status" == "UPDATE_IN_PROGRESS" ]; then echo "true"; fi
-          echo 3-$status
-          echo "$MIE_STACK_NAME stack status: $stack_status"
+          curl "https://oregonstateparks.reserveamerica.com/campsiteDetails.do?contractCode=OR&siteId=16057&parkId=402146&findavail=next" | grep "booking window"; if [ $? -ne 0 ]; then curl "https://oregonstateparks.reserveamerica.com/campsiteDetails.do?contractCode=OR&siteId=16057&parkId=402146&findavail=next" | grep "setNewArrivalDate" | cut -f 2 -d "(" | cut -f 1 -d "," | head -n 1; fi
+
