@@ -28,5 +28,5 @@ jobs:
         shell: bash
         run: |
           # Wait for stack to finish deploying
-          curl "https://oregonstateparks.reserveamerica.com/campsiteDetails.do?contractCode=OR&siteId=16057&parkId=402146&findavail=next" | grep "booking window"; if [ $? -ne 0 ]; then curl "https://oregonstateparks.reserveamerica.com/campsiteDetails.do?contractCode=OR&siteId=16057&parkId=402146&findavail=next" | grep "setNewArrivalDate" | cut -f 2 -d "(" | cut -f 1 -d "," | head -n 1; fi
+          curl "https://oregonstateparks.reserveamerica.com/campsiteDetails.do?contractCode=OR&siteId=16057&parkId=402146&findavail=next" | grep "setNewArrivalDate" | cut -f 2 -d "(" | cut -f 1 -d "," | head -n 1; fi
 
